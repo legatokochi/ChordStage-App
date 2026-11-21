@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d111d">
+  <meta name="description" content="An offline-first chord book for rehearsals and live stages.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon-192.png" type="image/png">
+  <link rel="stylesheet" href="./styles.css">
+  <title>ChordStage — Your set. Your sound.</title>
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">♮</span><div><strong>CHORD<span>STAGE</span></strong><small>YOUR SET. YOUR SOUND.</small></div></div>
+      <div class="top-actions">
+        <span class="connection-indicator"><i id="connectionDot"></i><span id="connectionText">LOCAL FIRST</span></span>
+        <button id="installBtn" class="button button-secondary hidden" type="button">Install app</button>
+        <button id="exportBtn" class="button button-secondary top-backup" type="button" title="Export charts, without audio">Export backup</button>
+        <label class="button button-secondary top-backup" for="backupInput" title="Restore a JSON backup">Restore</label>
+        <input id="backupInput" type="file" accept="application/json,.json" hidden>
+      </div>
+    </header>
+
+    <div class="shell">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-heading"><div><span class="eyebrow">YOUR REPERTOIRE</span><h2>Song Library <span id="songCount" class="count">0</span></h2></div><button class="icon-button close-sidebar" id="closeSidebar" aria-label="Close library">×</button></div>
+        <div class="searchbox"><span aria-hidden="true">⌕</span><input type="search" id="searchInput" placeholder="Search songs or artists" aria-label="Search songs or artists"></div>
+        <button class="button button-primary full-width" id="newSongBtn" type="button">＋ Add new song</button>
+        <div id="songList" class="song-list" role="list"></div>
+        <div class="sidebar-footer">Saved on this device <span aria-hidden="true">●</span> No account needed</div>
+      </aside>
+
+      <main class="workspace">
+        <div class="empty-state hidden" id="emptyState"><div class="empty-icon">♫</div><h1>Start your setlist</h1><p>Add a song to begin building your offline chord library.</p><button id="emptyAddBtn" class="button button-primary">Add a song</button></div>
+        <div id="songWorkspace">
+          <div class="song-header">
+            <button id="libraryToggle" class="icon-button hamburger" type="button" aria-label="Open song library">☰</button>
+            <div class="song-heading"><span class="eyebrow">NOW ON YOUR STAND</span><h1 id="songTitle">—</h1><div class="song-subtitle"><span id="songArtist">—</span><span class="dot">●</span><span id="songMeta">—</span></div></div>
+            <div class="song-header-actions"><button id="editSongBtn" class="button button-secondary">✎ <span>Edit</span></button><button id="stageBtn" class="button button-accent">⛶ <span>Stage view</span></button></div>
+          </div>
+          <nav class="tabs" aria-label="Song view"><button class="tab active" data-tab="chart">CHORD SHEET</button><button class="tab" data-tab="play">PLAY ALONG</button><button class="tab" data-tab="timings">CHORD TIMINGS</button><button class="tab" data-tab="analyze">AUDIO ANALYSIS <span class="beta">BETA</span></button></nav>
+
+          <section id="chartPanel" class="panel" aria-label="Chord sheet">
+            <div class="chart-toolbar"><div class="toolbar-group"><span class="mini-label">TRANSPOSE</span><button id="transposeDown" class="step-button" aria-label="Transpose down one semitone">−</button><strong id="transposeLabel">Original</strong><button id="transposeUp" class="step-button" aria-label="Transpose up one semitone">＋</button><button id="transposeReset" class="text-link">Reset</button></div><div class="toolbar-group"><span class="mini-label">TEXT SIZE</span><button id="fontDown" class="step-button" aria-label="Decrease font size">A−</button><span id="fontLabel" class="value-pill">22</span><button id="fontUp" class="step-button" aria-label="Increase font size">A＋</button></div></div>
+            <div class="chart-container" id="chartContainer" tabindex="0"><div id="chartPaper" class="chart-paper"></div></div>
+            <div class="scroll-toolbar"><div class="scroll-section"><button id="scrollToggle" class="button button-primary">▶ Auto-scroll</button><label class="switch-label"><input id="bpmMode" type="checkbox"><span>Sync to BPM</span></label></div><div class="scroll-section"><label for="scrollSpeed" class="mini-label" id="scrollSettingLabel">SCROLL SPEED</label><input id="scrollSpeed" type="range" min="5" max="120" step="1" value="30"><span id="scrollSpeedLabel" class="speed-label">30 px/s</span></div></div>
+          </section>
+
+          <section id="playPanel" class="panel hidden" aria-label="Play along">
+            <div class="panel-intro"><div><span class="eyebrow">PRACTICE WITH YOUR RECORDING</span><h2>Follow the changes</h2><p>Timing cues track the recording. Adjust them in Chord Timings.</p></div></div>
+            <div class="audio-attach"><div><strong id="audioName">No recording attached</strong><small>Audio is stored only on this device, not in your backup.</small></div><div class="attach-actions"><label class="button button-secondary" for="audioInput">Choose audio</label><button id="removeAudioBtn" class="button button-ghost hidden">Remove</button></div><input type="file" id="audioInput" accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac" hidden></div>
+            <div class="now-playing"><span class="eyebrow">CURRENT CHORD</span><div id="currentChord" class="big-chord">—</div><div class="next-chord"><span>NEXT</span><strong id="nextChord">—</strong><span id="nextCountdown">—</span></div></div>
+            <div class="audio-controls"><div class="transport"><button id="skipBackBtn" class="icon-button" title="Back 5 seconds">↶5</button><button id="playBtn" class="play-button" aria-label="Play audio">▶</button><button id="skipAheadBtn" class="icon-button" title="Forward 5 seconds">5↷</button></div><div class="seek-row"><span id="audioTime">0:00</span><input id="seekSlider" type="range" min="0" max="1000" value="0" aria-label="Seek recording"><span id="audioDuration">0:00</span></div></div>
+            <div class="timeline-heading"><strong>Tap any chord to jump to it</strong><span id="timingCount">0 changes</span></div><div class="cue-strip" id="cueStrip"></div>
+            <audio id="audioPlayer" preload="metadata"></audio>
+          </section>
+
+          <section id="timingsPanel" class="panel hidden" aria-label="Chord timings">
+            <div class="panel-intro"><div><span class="eyebrow">MAKE IT ACCURATE</span><h2>Chord timing editor</h2><p>Enter a chord and its start time in seconds. Use “Mark now” while the recording plays.</p></div><button id="addCueBtn" class="button button-primary">＋ Add change</button></div>
+            <div class="timing-actions"><button id="markNowBtn" class="button button-secondary">◉ Mark now</button><span>Use the audio playback tab to listen, then mark chord changes.</span></div><div class="cue-table"><div class="cue-table-head"><span>START (SEC)</span><span>CHORD</span><span>ACTIONS</span></div><div id="cueRows"></div></div>
+          </section>
+
+          <section id="analyzePanel" class="panel hidden" aria-label="Audio analysis">
+            <div class="panel-intro"><div><span class="eyebrow">LOCAL AUDIO PROCESSING · EXPERIMENTAL</span><h2>Estimate chord changes</h2><p>Analyze an attached recording for major/minor triads. Results are drafts: review and correct before using them on stage.</p></div></div>
+            <div class="analysis-card"><div><strong>Analyze recorded harmony</strong><p>Runs locally in your browser. Prioritizes lower and mid-frequency harmonic evidence; solos, drums and complex chords can confuse it.</p></div><button id="analyzeBtn" class="button button-primary">♫ Analyze audio</button></div>
+            <div id="analysisProgress" class="analysis-progress hidden" role="status">Analyzing…</div>
+            <div id="analysisResult" class="analysis-result hidden"><p id="analysisSummary"></p><button id="applyAnalysisBtn" class="button button-accent">Use estimated chord timings</button></div>
+            <div class="lyrics-info"><strong>Lyrics transcription</strong><p>Automatic transcription of an uploaded recording needs an additional speech-recognition model or service. It is not included in this offline-first version. You can already enter and edit lyrics in the chord sheet.</p><button id="editLyricsBtn" class="button button-secondary">Edit lyrics & chords</button></div>
+          </section>
+        </div>
+      </main>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <dialog id="editorDialog" class="editor-dialog"><form id="editorForm" method="dialog" novalidate><div class="dialog-heading"><div><span class="eyebrow">YOUR MUSIC, YOUR WAY</span><h2 id="editorHeading">Edit song</h2></div><button id="cancelEditorTop" type="button" class="icon-button" aria-label="Close editor">×</button></div><div class="form-grid"><label>Song title<input id="editTitle" type="text" required maxlength="140" placeholder="e.g. Midnight Roads"></label><label>Artist<input id="editArtist" type="text" maxlength="140" placeholder="Artist / Band"></label><label>Original key<select id="editKey"></select></label><label>Tempo (BPM)<input id="editBpm" type="number" min="30" max="300" value="90"></label></div><label class="editor-chart-label">Lyrics & chords<textarea id="editChart" spellcheck="false" rows="13" placeholder="[Am]Sing the first [F]line\n[C]Move to the [G]next chord"></textarea></label><p class="format-hint">Write chord labels in square brackets immediately before the syllable where they should appear. Example: <code>[Am]Hello [F]there [C]friend</code>. Section labels such as <code>Verse 1:</code> work too.</p><div class="dialog-footer"><button id="deleteSongBtn" class="button button-danger" type="button">Delete song</button><div class="dialog-spacer"></div><button id="cancelEditor" class="button button-secondary" type="button">Cancel</button><button id="saveEditor" class="button button-primary" type="submit">Save song</button></div></form></dialog>
+
+  <script src="./analysis.js" defer></script>
+  <script src="./app.js" defer></script>
+</body>
+</html>
