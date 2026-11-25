@@ -29,5 +29,23 @@ assert.equal(chart,'Verse 1:\n|: [C]  [Amadd9]  |\n| %  :|');
 assert.equal(c.normalize(input).timeSignature,'6/8');
 const malicious=c.normalize({root:'BLAH',bars:[{tokens:[{type:'chord',value:'<img>'}]}]});
 assert.equal(malicious.root,'C');
-assert.equal(malicious.bars[0].tokens.length,0);
+assert.equal(malicious.sections[0].bars[0].tokens.length,0);
 console.log('PASS: scale chords, enharmonic spelling, custom chords, variations, bars, and validation.');
+
+// Song sections: a single-tap chord keypad fills each bar; old v1 charts remain compatible.
+assert.equal(c.normalize(input).sections[0].title,'Verse 1');
+assert.equal(c.normalize(input).version,2);
+const progression={root:'G',mode:'major',timeSignature:'4/4',sections:[
+  {title:'Intro',bars:[{tokens:[{type:'chord',value:'G'},{type:'chord',value:'D'}],end:'|'}]},
+  {title:'Verse 1',bars:[{tokens:[{type:'chord',value:'Em'},{type:'chord',value:'C'}],end:'||'}]},
+  {title:'Pre-Chorus',bars:[{tokens:[{type:'chord',value:'Am'}],end:'|'}]},
+  {title:'Chorus',bars:[{tokens:[{type:'chord',value:'D'}],end:'|'}]},
+  {title:'Guitar Riff',bars:[{tokens:[{type:'chord',value:'Ebmaj7'}],end:'|'}]},
+]};
+const sections=c.normalize(progression);
+assert.equal(sections.sections.length,5);
+assert.deepEqual(Array.from(sections.sections,s=>s.title),['Intro','Verse 1','Pre-Chorus','Chorus','Guitar Riff']);
+assert.equal(c.buildChart(sections),'Intro:\n| [G]  [D]  |\n\nVerse 1:\n| [Em]  [C]  ||\n\nPre-Chorus:\n| [Am]  |\n\nChorus:\n| [D]  |\n\nGuitar Riff:\n| [Ebmaj7]  |');
+assert.equal(c.normalize({sections:[{title:'Verse 1:<script>',bars:[{tokens:[]}]}]}).sections[0].title,'Verse 1script');
+assert.equal(c.buildChart(input),chart);
+console.log('PASS: multiple ordered sections, custom headings, legacy migration, and Stage View chart serialization.');
