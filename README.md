@@ -25,6 +25,17 @@ Bar symbols: `|` adds the next bar, `||` marks a phrase end, `|:` starts a repea
 
 **Testing:** `node tests/composer.test.cjs` validates C major, A natural/harmonic minor, C# major spelling, chord qualities, custom chords and chart formatting. Run a device test before relying on the new editor live.
 
+
+## Section-based chart building (v0.3)
+
+**Add new song** now opens **Chord Composer** directly. Enter the song details, select the key/scale, choose a section preset (Intro, Verse 1–4, Pre-Chorus, Chorus, Post-Chorus, Bridge, Instrumental, Solo, Interlude, Breakdown, Outro, Ending), or choose **Type… (custom heading)** to supply your own section name.
+
+Tap **Add section**, select any section/bar, and tap a scale chord to insert it instantly. Bar controls, chord variations and out-of-scale custom chords are still available. You can rename, reorder, or remove sections independently. A song may contain multiple ordered sections, each with its own bars. The resulting standard chord-marked sheet is rendered in Stage View and transposes like existing charts. The structured section data is saved offline and included in the JSON backup (audio excluded).
+
+Existing one-section v0.2 compositions are upgraded in memory when opened and preserved when resaved. Previously stored free-text song charts remain supported via the legacy editor; the free-text editor is no longer the primary new-song flow. This is a **chord chart editor**, not full rhythmic notation or lyrics transcription.
+
+Run `node tests/composer.test.cjs` to test legacy conversion, section names, chart serialization and scale-chord generation.
+
 ## What's not included yet
 
 - **Automatic lyrics transcription**: requires a speech recognition model or service; no transcription happens in v0.1.
