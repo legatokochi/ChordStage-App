@@ -85,9 +85,9 @@
       <p>Choose the way you want to build your chord sheet.</p>
       <button id="newSongCompose" type="button" class="choice-option emphasized">
         <strong>♫ Chord Composer</strong>
-        <small>Choose a key, scale, time signature and BPM. Tap chords and musical symbols into bars.</small>
+        <small>Organize your song into verses, choruses and custom sections. Tap the chord keypad to build each bar.</small>
       </button>
-      <button id="newSongQuick" type="button" class="choice-option">
+      <button id="newSongQuick" type="button" class="choice-option hidden">
         <strong>✎ Write a chart</strong>
         <small>Type or paste lyrics and chords using the standard [C] chord format.</small>
       </button>
@@ -101,7 +101,7 @@
         <div><span class="eyebrow">BUILD YOUR OWN CHORD SHEET</span><h2 id="composerHeading">Chord Composer</h2></div>
         <button type="button" id="composerCloseBtn" class="icon-button" aria-label="Close chord composer">×</button>
       </div>
-      <p class="composer-lead">Select a scale to get its chords. Tap any chord to insert it in the selected bar, then add variations or notation.</p>
+      <p class="composer-lead">Select a scale to get its chords. Add song sections in order, tap a bar, then tap chords on the keypad to enter them with one touch.</p>
       <div class="composer-details">
         <label class="composer-song-title">Song name<input id="composerTitle" type="text" maxlength="140" placeholder="Name your song" required></label>
         <label class="composer-artist">Artist (optional)<input id="composerArtist" type="text" maxlength="140" placeholder="Artist or band"></label>
@@ -109,15 +109,28 @@
         <label>Scale<select id="composerScale" aria-label="Scale mode"></select></label>
         <label>Time signature<select id="composerSignature" aria-label="Time signature"></select></label>
         <label>Tempo (BPM)<input id="composerTempo" type="number" min="30" max="300" value="90" required></label>
-        <label class="composer-section">Section name<input id="composerSection" type="text" maxlength="60" value="Intro" placeholder="Verse 1, Chorus, Intro"></label>
       </div>
       <div class="composer-layout">
         <section class="composer-surface" aria-label="Bar arrangement">
-          <div class="composer-surface-title"><h3>Chord arrangement</h3><span id="composerBarCount" class="composer-small">1 bar</span></div>
-          <p class="composer-hint">Tap a bar to select it. Tap an inserted chord to select it for variations or removal.</p>
-          <div id="composerBars" class="composer-bars" aria-live="polite"></div>
+          <div class="composer-surface-title"><h3>Song sections</h3><span id="composerBarCount" class="composer-small">1 section · 1 bar</span></div>
+          <div class="composer-section-builder">
+            <label class="composer-section-type">Add a section
+              <select id="composerSectionType" aria-label="Section to add">
+                <option>Intro</option><option selected>Verse 1</option><option>Verse 2</option><option>Verse 3</option><option>Verse 4</option>
+                <option>Pre-Chorus</option><option>Chorus</option><option>Post-Chorus</option><option>Bridge</option>
+                <option>Instrumental</option><option>Solo</option><option>Interlude</option><option>Breakdown</option><option>Outro</option><option>Ending</option>
+                <option value="custom">Type… (custom heading)</option>
+              </select>
+            </label>
+            <label id="composerCustomSectionWrap" class="composer-custom-section hidden">Custom section name
+              <input id="composerCustomSection" maxlength="60" placeholder="e.g. Guitar Riff / Verse 5" autocomplete="off">
+            </label>
+            <button type="button" id="composerAddSection" class="button button-primary">＋ Add section</button>
+          </div>
+          <p class="composer-hint">Select a section and bar. Each chord keypad tap inserts a chord in that bar. Use | to start the next bar. Tap ✎ to rename a section or the arrows to reorder sections.</p>
+          <div id="composerSections" class="composer-sections" aria-live="polite"></div>
           <div class="composer-bar-actions">
-            <button id="composerAddBar" type="button" class="button button-secondary">＋ Add bar</button>
+            <button id="composerAddBar" type="button" class="button button-secondary">＋ Add bar to section</button>
             <button id="composerRemoveToken" type="button" class="button button-secondary">Remove selected</button>
           </div>
           <p id="composerSelection" class="composer-selection" role="status">Bar 1 selected</p>
