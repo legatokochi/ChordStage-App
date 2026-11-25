@@ -2,7 +2,7 @@
 
 A free, mobile-friendly, **local-first, installable chord book** for stage performers.
 
-## What's included in version 0.1
+## What's included in the base version
 
 - Song library: add, search, edit, delete, and save chords and lyrics.
 - Chords typed as `[C]`, `[Am]`, `[F#m7]` or `[D/F#]` above the following words.
@@ -15,6 +15,15 @@ A free, mobile-friendly, **local-first, installable chord book** for stage perfo
 - Experimental **major/minor triad** chord estimator running in the browser. Not reliable enough for unreviewed live use.
 - Offline app-shell cache with a service worker; works after the first online load on HTTPS.
 - JSON export/restore of charts and timing cues **without audio**.
+
+
+## Chord Composer (v0.2)
+
+In **Add new song**, choose **Chord Composer** to create a bar-by-bar arrangement without typing chord symbols. Set the song name, optional artist, key, scale (major, natural minor, harmonic minor, melodic minor ascending), time signature and tempo. The scale-aware keypad offers correctly spelled diatonic triads; select a bar and tap to insert chords. Select an inserted chord to modify it with **Major, Minor, 7, m7, Major 7, Add9, Aug, Dim, Sus2, Sus4, 6, 9, or 13**. Custom chords can be typed outside the selected scale.
+
+Bar symbols: `|` adds the next bar, `||` marks a phrase end, `|:` starts a repeated section, `:|` ends it, `%` is a one-bar repeat sign, `/` a beat slash and `—` a held/empty token. **This is chord chart notation, not staff notation or a beat-accurate arranger**; tapping a chord adds it to the selected bar in sequence without automatically counting beats. Existing chord sheets can still be typed using the original free-text editor. New composer arrangements save to local storage, display in Stage View, transpose, and are included in JSON backups along with time signature and bar structures. Audio remains separate.
+
+**Testing:** `node tests/composer.test.cjs` validates C major, A natural/harmonic minor, C# major spelling, chord qualities, custom chords and chart formatting. Run a device test before relying on the new editor live.
 
 ## What's not included yet
 
