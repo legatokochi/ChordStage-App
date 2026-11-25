@@ -60,3 +60,21 @@
 .composer-tip{font-size:11px;color:#97a8be;line-height:1.55;margin:11px 0 0}
 @media(max-width:940px){.composer-layout{grid-template-columns:1fr}.composer-bars{max-height:230px}.composer-details{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:600px){.composer-form{padding:14px 11px}.composer-details{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.composer-details .composer-song-title,.composer-details .composer-artist,.composer-details .composer-section{grid-column:span 2}.composer-bars{grid-template-columns:1fr;max-height:245px}.composer-scale-chords{grid-template-columns:repeat(4,minmax(0,1fr))}.composer-utilities{grid-template-columns:repeat(4,minmax(0,1fr))}.composer-symbols{grid-template-columns:repeat(4,minmax(0,1fr))}.composer-surface{padding:12px}.composer-dialog{width:98vw}.composer-chord-key{min-height:58px}}
+
+/* v0.3 structured song sections */
+.composer-details{grid-template-columns:repeat(6,minmax(0,1fr))}
+.composer-section-builder{display:flex;align-items:end;gap:9px;flex-wrap:wrap;background:#101929;border:1px solid #2d4359;border-radius:11px;padding:12px;margin-bottom:13px}
+.composer-section-builder label{display:flex;flex-direction:column;gap:6px;font-size:11px;color:#b7cadb;font-weight:750;min-width:145px;flex:1}
+.composer-section-builder select,.composer-section-builder input{background:#0c1524;color:#f2f6ff;border:1px solid #374a64;border-radius:9px;padding:9px;min-height:40px;width:100%;font:inherit}
+.composer-section-builder .button{align-self:end;min-height:40px}
+.composer-sections{max-height:410px;overflow-y:auto;padding:2px 5px 4px 0;display:flex;flex-direction:column;gap:10px;scrollbar-gutter:stable}
+.composer-section-card{background:#101929;border:1px solid #35445c;border-radius:12px;padding:11px}
+.composer-section-card.selected{border-color:#8db764;box-shadow:inset 3px 0 0 var(--accent)}
+.composer-section-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.composer-section-select{background:none;border:0;color:var(--accent);font-weight:850;text-align:left;padding:5px 0;font-size:14px;min-width:0;overflow-wrap:anywhere}
+.composer-section-actions{display:flex;gap:4px;flex-shrink:0}
+.composer-section-tool{color:#c7d6e9;background:#233249;border:1px solid #3a4f68;border-radius:7px;width:29px;height:29px;font-size:14px}
+.composer-section-tool.danger{color:#ffa4ac}
+.composer-section-card .composer-bars{max-height:none;overflow:visible;padding:1px;}
+.composer-bar{min-height:85px}
+@media(max-width:600px){.composer-section-builder{align-items:stretch}.composer-section-builder label{flex:1 1 100%}.composer-section-builder .button{width:100%}.composer-sections{max-height:38dvh;min-height:190px}.composer-section-card{padding:9px}.composer-section-tool{width:32px;height:34px}}
