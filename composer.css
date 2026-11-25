@@ -1,0 +1,62 @@
+/* Chord Composer: touch-first, bar-based notation keypad */
+.choice-dialog,.composer-dialog{color:var(--text);background:#121b2b;border:1px solid #39475e;border-radius:20px;box-shadow:0 28px 100px #000c;padding:0;max-height:94dvh}
+.choice-dialog::backdrop,.composer-dialog::backdrop{background:#020714d9}
+.choice-dialog{width:min(490px,94vw)}
+.choice-inside{padding:25px}
+.choice-inside h2{font-size:25px;margin:7px 0 8px}
+.choice-inside p{font-size:13px;line-height:1.55;color:var(--muted);margin:0 0 20px}
+.choice-option{background:#1b2940;color:var(--text);border:1px solid #41526b;border-radius:13px;text-align:left;padding:15px;display:flex;flex-direction:column;gap:5px;width:100%;margin:10px 0;cursor:pointer}
+.choice-option:hover,.choice-option:focus-visible{border-color:var(--accent);background:#253c37}
+.choice-option strong{font-size:15px}
+.choice-option small{color:#aebbd0;font-size:12px;line-height:1.5}
+.choice-option.emphasized{border-color:#688a52;background:#21362b}
+.choice-cancel{display:block;margin:15px 0 0 auto}
+.composer-dialog{width:min(1120px,98vw)}
+.composer-form{max-height:94dvh;overflow-y:auto;padding:23px clamp(13px,2.5vw,29px) 18px}
+.composer-dialog-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.composer-dialog-top h2{font-size:clamp(21px,3vw,29px);letter-spacing:-.7px;margin:6px 0}
+.composer-lead{font-size:12px;color:#aab8ce;line-height:1.5;margin:3px 0 17px}
+.composer-details{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:11px;margin-bottom:17px}
+.composer-details label{font-size:11px;font-weight:750;color:#bbcade;display:flex;flex-direction:column;gap:7px;min-width:0}
+.composer-details input,.composer-details select,.composer-custom-row input{width:100%;background:#0c1524;color:#f2f6ff;border:1px solid #374a64;border-radius:9px;min-height:41px;padding:8px 9px;font:inherit;font-size:13px}
+.composer-details .composer-song-title{grid-column:span 2}
+.composer-details .composer-artist{grid-column:span 2}
+.composer-details .composer-section{grid-column:span 2}
+.composer-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.9fr);gap:16px;align-items:start}
+.composer-surface{background:#151f30;border:1px solid #2f4058;border-radius:15px;padding:14px;min-width:0}
+.composer-surface-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.composer-surface h3{font-size:14px;letter-spacing:-.1px;margin:0}
+.composer-small,.composer-hint{color:#91a4bb;font-size:11px;line-height:1.4}
+.composer-bars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;max-height:345px;overflow-y:auto;padding:2px 4px 5px 1px}
+.composer-bar{background:#111a2a;border:1px solid #354761;border-radius:11px;min-height:94px;padding:9px;min-width:0}
+.composer-bar.selected{background:#1c322b;border-color:#a6e273;box-shadow:0 0 0 1px #a6e27330}
+.composer-bar-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.composer-bar-select{border:0;color:#b1c1d4;background:transparent;font-size:10px;letter-spacing:1.2px;font-weight:850;padding:2px 0}
+.composer-remove-bar{background:transparent;border:0;color:#94a4b8;font-size:16px;min-width:22px}
+.composer-bar-tokens{display:flex;gap:5px;flex-wrap:wrap;align-items:center;min-height:34px}
+.composer-bar-marker{border:0;background:transparent;color:#99aabd;padding:3px 2px;font-size:16px;font-weight:700}
+.composer-bar-empty{color:#708399;font-size:11px;font-style:italic;padding:3px}
+.composer-token{background:#27354b;border:1px solid #3b516d;color:#e9effc;border-radius:7px;padding:6px 8px;font-weight:800;font-size:12px;min-width:25px}
+.composer-token.active{background:var(--accent);border-color:var(--accent);color:#172417}
+.composer-chart-preview{margin:12px 0 0;display:block;color:#b7c9de;font-size:12px;white-space:pre-wrap;line-height:1.7;background:#0c1524;border:1px solid #283851;border-radius:9px;padding:11px;max-height:148px;overflow:auto}
+.composer-bar-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:11px}
+.composer-bar-actions .button{padding:8px 10px;min-height:36px}
+.composer-selection{font-size:11px;color:var(--accent);min-height:18px;margin:10px 0 0}
+.composer-scale-chords{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:12px 0 16px}
+.composer-chord-key{min-height:62px;border:1px solid #5e864c;border-radius:11px;background:linear-gradient(155deg,#355539,#263b30);color:#ecf8e9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:7px 2px}
+.composer-chord-key strong{font-size:17px;white-space:nowrap}
+.composer-chord-key span{font-size:10px;color:#b3d9a7}
+.composer-chord-key:active,.composer-utility-key:active{transform:scale(.97)}
+.composer-pad-label{display:block;font-size:10px;letter-spacing:1.3px;font-weight:850;color:#b4c2d6;margin:13px 0 8px}
+.composer-utilities{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.composer-utility-key{background:#25334a;color:#e9effc;border:1px solid #435674;border-radius:9px;min-height:41px;font-weight:800;font-size:12px;padding:5px}
+.composer-symbols{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.composer-symbol-key{font-size:16px;min-height:42px}
+.composer-custom-row{display:flex;gap:7px;margin-top:9px}
+.composer-custom-row input{flex:1;min-width:0}
+.composer-custom-row .button{min-height:40px;padding:8px 12px}
+.composer-footer{display:flex;align-items:center;justify-content:flex-end;gap:9px;flex-wrap:wrap;border-top:1px solid #304159;padding-top:15px;margin-top:18px}
+.composer-footer .button{min-height:40px}
+.composer-tip{font-size:11px;color:#97a8be;line-height:1.55;margin:11px 0 0}
+@media(max-width:940px){.composer-layout{grid-template-columns:1fr}.composer-bars{max-height:230px}.composer-details{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:600px){.composer-form{padding:14px 11px}.composer-details{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.composer-details .composer-song-title,.composer-details .composer-artist,.composer-details .composer-section{grid-column:span 2}.composer-bars{grid-template-columns:1fr;max-height:245px}.composer-scale-chords{grid-template-columns:repeat(4,minmax(0,1fr))}.composer-utilities{grid-template-columns:repeat(4,minmax(0,1fr))}.composer-symbols{grid-template-columns:repeat(4,minmax(0,1fr))}.composer-surface{padding:12px}.composer-dialog{width:98vw}.composer-chord-key{min-height:58px}}
