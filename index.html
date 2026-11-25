@@ -8,6 +8,7 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon-192.png" type="image/png">
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./composer.css">
   <title>ChordStage — Your set. Your sound.</title>
 </head>
 <body>
@@ -77,6 +78,76 @@
 
   <dialog id="editorDialog" class="editor-dialog"><form id="editorForm" method="dialog" novalidate><div class="dialog-heading"><div><span class="eyebrow">YOUR MUSIC, YOUR WAY</span><h2 id="editorHeading">Edit song</h2></div><button id="cancelEditorTop" type="button" class="icon-button" aria-label="Close editor">×</button></div><div class="form-grid"><label>Song title<input id="editTitle" type="text" required maxlength="140" placeholder="e.g. Midnight Roads"></label><label>Artist<input id="editArtist" type="text" maxlength="140" placeholder="Artist / Band"></label><label>Original key<select id="editKey"></select></label><label>Tempo (BPM)<input id="editBpm" type="number" min="30" max="300" value="90"></label></div><label class="editor-chart-label">Lyrics & chords<textarea id="editChart" spellcheck="false" rows="13" placeholder="[Am]Sing the first [F]line\n[C]Move to the [G]next chord"></textarea></label><p class="format-hint">Write chord labels in square brackets immediately before the syllable where they should appear. Example: <code>[Am]Hello [F]there [C]friend</code>. Section labels such as <code>Verse 1:</code> work too.</p><div class="dialog-footer"><button id="deleteSongBtn" class="button button-danger" type="button">Delete song</button><div class="dialog-spacer"></div><button id="cancelEditor" class="button button-secondary" type="button">Cancel</button><button id="saveEditor" class="button button-primary" type="submit">Save song</button></div></form></dialog>
 
+  <dialog id="newSongDialog" class="choice-dialog" aria-labelledby="newSongChoiceHeading">
+    <div class="choice-inside">
+      <span class="eyebrow">ADD TO YOUR LIBRARY</span>
+      <h2 id="newSongChoiceHeading">Create a new song</h2>
+      <p>Choose the way you want to build your chord sheet.</p>
+      <button id="newSongCompose" type="button" class="choice-option emphasized">
+        <strong>♫ Chord Composer</strong>
+        <small>Choose a key, scale, time signature and BPM. Tap chords and musical symbols into bars.</small>
+      </button>
+      <button id="newSongQuick" type="button" class="choice-option">
+        <strong>✎ Write a chart</strong>
+        <small>Type or paste lyrics and chords using the standard [C] chord format.</small>
+      </button>
+      <button id="newSongClose" type="button" class="button button-secondary choice-cancel">Cancel</button>
+    </div>
+  </dialog>
+
+  <dialog id="composerDialog" class="composer-dialog" aria-labelledby="composerHeading">
+    <form id="composerForm" class="composer-form" novalidate>
+      <div class="composer-dialog-top">
+        <div><span class="eyebrow">BUILD YOUR OWN CHORD SHEET</span><h2 id="composerHeading">Chord Composer</h2></div>
+        <button type="button" id="composerCloseBtn" class="icon-button" aria-label="Close chord composer">×</button>
+      </div>
+      <p class="composer-lead">Select a scale to get its chords. Tap any chord to insert it in the selected bar, then add variations or notation.</p>
+      <div class="composer-details">
+        <label class="composer-song-title">Song name<input id="composerTitle" type="text" maxlength="140" placeholder="Name your song" required></label>
+        <label class="composer-artist">Artist (optional)<input id="composerArtist" type="text" maxlength="140" placeholder="Artist or band"></label>
+        <label>Key<select id="composerRoot" aria-label="Key of the song"></select></label>
+        <label>Scale<select id="composerScale" aria-label="Scale mode"></select></label>
+        <label>Time signature<select id="composerSignature" aria-label="Time signature"></select></label>
+        <label>Tempo (BPM)<input id="composerTempo" type="number" min="30" max="300" value="90" required></label>
+        <label class="composer-section">Section name<input id="composerSection" type="text" maxlength="60" value="Intro" placeholder="Verse 1, Chorus, Intro"></label>
+      </div>
+      <div class="composer-layout">
+        <section class="composer-surface" aria-label="Bar arrangement">
+          <div class="composer-surface-title"><h3>Chord arrangement</h3><span id="composerBarCount" class="composer-small">1 bar</span></div>
+          <p class="composer-hint">Tap a bar to select it. Tap an inserted chord to select it for variations or removal.</p>
+          <div id="composerBars" class="composer-bars" aria-live="polite"></div>
+          <div class="composer-bar-actions">
+            <button id="composerAddBar" type="button" class="button button-secondary">＋ Add bar</button>
+            <button id="composerRemoveToken" type="button" class="button button-secondary">Remove selected</button>
+          </div>
+          <p id="composerSelection" class="composer-selection" role="status">Bar 1 selected</p>
+          <span class="composer-pad-label">STAGE CHART PREVIEW</span>
+          <pre id="composerChartPreview" class="composer-chart-preview"></pre>
+        </section>
+        <section class="composer-surface" aria-label="Chord keypad">
+          <div class="composer-surface-title"><h3>Chord keypad</h3></div>
+          <p id="composerScaleHint" class="composer-hint"></p>
+          <div id="composerScaleChords" class="composer-scale-chords"></div>
+          <span class="composer-pad-label">CHORD VARIATIONS · EDIT SELECTED CHORD</span>
+          <div id="composerQualities" class="composer-utilities"></div>
+          <span class="composer-pad-label">BARLINES & MUSICAL SYMBOLS</span>
+          <div id="composerSymbols" class="composer-symbols"></div>
+          <span class="composer-pad-label">CUSTOM CHORD · OUTSIDE THE SCALE</span>
+          <div class="composer-custom-row">
+            <input id="composerCustomChord" type="text" maxlength="30" aria-label="Custom chord name" placeholder="e.g. Bbmaj7, F#m7b5, E7(b9)" autocomplete="off" spellcheck="false">
+            <button id="composerCustomBtn" type="button" class="button button-primary">＋ Add</button>
+          </div>
+          <p class="composer-tip">| adds a bar · || ends a phrase · |: and :| mark repeats · % repeats a bar · / marks a beat slash. Each bar is editable, but beat positions are not yet quantified.</p>
+        </section>
+      </div>
+      <div class="composer-footer">
+        <button id="composerManualBtn" type="button" class="button button-ghost hidden" title="If you edit the generated chart text, the structured bar layout will be replaced">Edit as text</button>
+        <button id="composerCancelBtn" type="button" class="button button-secondary">Cancel</button>
+        <button id="composerSaveBtn" type="submit" class="button button-primary">Save to library</button>
+      </div>
+    </form>
+  </dialog>
+  <script src="./composer.js" defer></script>
   <script src="./analysis.js" defer></script>
   <script src="./app.js" defer></script>
 </body>
