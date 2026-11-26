@@ -60,3 +60,7 @@ assert.equal(c.normalize(newArrangement).sections[0].bars[2].lineBreakBefore,tru
 const previous={version:2,root:'C',sections:[{title:'Intro',bars:[{tokens:[]},{tokens:[]}]}]};
 assert.equal(c.normalize(previous).sections[0].bars[1].lineBreakBefore,true);
 console.log('PASS: v0.4 line breaks and legacy bar formatting.');
+
+assert.equal(c.chordTapAction(true),'preview','Preview ON must audition only');
+assert.equal(c.chordTapAction(false),'insert','Preview OFF must insert chords');
+console.log('PASS: independent chord preview and entry modes.');
