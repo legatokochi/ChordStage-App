@@ -114,6 +114,13 @@
     return suffix===undefined?chord:root+suffix;
   }
   function notify(message){if(api?.toast)api.toast(message);}
+  function audition(chord,button){
+    if(!$('composerSoundOn').checked || !window.ChordStageSound)return;
+    const opts={instrument:$('composerInstrument').value,volume:Number($('composerVolume').value)/100};
+    const result=window.ChordStageSound.play(chord,opts);
+    if(button){button.classList.add('playing');setTimeout(()=>button.classList.remove('playing'),270);}
+    Promise.resolve(result).then(ok=>{if(ok===false)notify('This chord sound is not supported by the synthesizer. The chord was still added.');}).catch(()=>{});
+  }
   function currentSection(){return work?.sections[activeSection];}
   function currentBar(){return currentSection()?.bars[activeBar];}
   function totalBars(){return work.sections.reduce((n,s)=>n+s.bars.length,0);}
@@ -157,13 +164,15 @@
       const name=document.createElement('strong');name.textContent=chord;
       const sub=document.createElement('span');sub.textContent=degree;
       button.append(name,sub);button.setAttribute('aria-label',`Insert ${chord}, scale degree ${degree}`);
-      button.addEventListener('click',()=>addToken('chord',chord));pad.append(button);
+      button.addEventListener('click',()=>{addToken('chord',chord);audition(chord,button);});pad.append(button);
     }
-    $('composerScaleHint').textContent=`${work.root} ${MODES[work.mode].label} · diatonic triads (tap to insert)`;
+    $('composerScaleHint').textContent=`${work.root} ${MODES[work.mode].label} · tap to insert and preview`; $('composerScaleBadge').textContent=`${work.root} ${MODES[work.mode].label}`;
   }
   function buttonEl(label,cls,onClick){const b=document.createElement('button');b.type='button';b.className=cls;b.textContent=label;b.addEventListener('click',onClick);return b;}
   function renderSections(){
     const host=$('composerSections');const preservedScroll=host.scrollTop;host.replaceChildren();
+    const tabs=$('composerSectionTabs');tabs.replaceChildren();
+    work.sections.forEach((section,si)=>{const tab=buttonEl(section.title,'composer-section-tab'+(si===activeSection?' active':''),()=>chooseSection(si));tab.setAttribute('aria-pressed',String(si===activeSection));tabs.append(tab);});
     work.sections.forEach((section,si)=>{
       const card=document.createElement('section');card.className='composer-section-card'+(si===activeSection?' selected':'');
       card.setAttribute('aria-label',section.title);
@@ -201,6 +210,9 @@
     const n=totalBars();
     $('composerBarCount').textContent=`${work.sections.length} ${work.sections.length===1?'section':'sections'} · ${n} ${n===1?'bar':'bars'}`;
     $('composerChartPreview').textContent=buildChart(work);
+    const section=currentSection(),bar=section?.bars[activeBar];
+    const lineIndex=section?.bars.slice(0,activeBar+1).filter((b,i)=>i>0&&b.lineBreakBefore).length+1;
+    $('composerCursor').textContent=`Editing ${section?.title||'Section'} · line ${lineIndex} · bar ${activeBar+1}${bar?.tokens.length?'':' · tap a chord to begin'}`;
     host.scrollTop=preservedScroll;
   }
   function render(){renderKeypad();renderSections();}
@@ -255,6 +267,15 @@
     $('composerSelection').textContent=`Added ${value} to ${currentSection().title}, bar ${activeBar+1}`;
     renderSections();
   }
+  function nextLine(){
+    if(totalBars()>=MAX_BARS){notify('Maximum of 256 bars per arrangement');return false;}
+    const bars=currentSection()?.bars;if(!bars)return false;
+    const next=blankBar();next.lineBreakBefore=true;
+    bars.splice(activeBar+1,0,next);activeBar++;activeToken=-1;
+    $('composerSelection').textContent=`Next line in ${currentSection().title} · Bar ${activeBar+1}`;
+    renderSections();$('composerChartPreview').scrollTop=$('composerChartPreview').scrollHeight;
+    return true;
+  }
   function newBar(){
     if(totalBars()>=MAX_BARS){notify('Maximum of 256 bars per arrangement');return false;}
     const bars=currentSection()?.bars;if(!bars)return false;
@@ -274,7 +295,7 @@
     if(!t||t.type!=='chord'){notify('Tap an inserted chord in the bar before choosing a variation');return;}
     const changed=changeQuality(t.value,quality);
     if(!isChord(changed)){notify('This variation is not supported');return;}
-    t.value=changed;$('composerSelection').textContent=`Changed chord to ${t.value}`;renderSections();
+    t.value=changed;$('composerSelection').textContent=`Changed chord to ${t.value}`;renderSections();audition(t.value);
   }
   function symbolAction(s){
     const bar=currentBar();if(!bar)return;
@@ -300,6 +321,13 @@
   }
   function init(config){
     api=config;
+    $('composerSoundOn').checked=localStorage.getItem('cs-sound-preview')!=='off';
+    $('composerInstrument').value=localStorage.getItem('cs-preview-instrument')||'guitar';
+    $('composerVolume').value=localStorage.getItem('cs-preview-volume')||40;
+    $('composerSoundOn').addEventListener('change',()=>{localStorage.setItem('cs-sound-preview',$('composerSoundOn').checked?'on':'off');if(!$('composerSoundOn').checked)window.ChordStageSound?.stop();});
+    $('composerInstrument').addEventListener('change',()=>localStorage.setItem('cs-preview-instrument',$('composerInstrument').value));
+    $('composerVolume').addEventListener('input',()=>localStorage.setItem('cs-preview-volume',$('composerVolume').value));
+    $('composerDialog').addEventListener('close',()=>window.ChordStageSound?.stop());
     KEYS.forEach(key=>$('composerRoot').add(new Option(key,key)));
     Object.keys(MODES).forEach(key=>$('composerScale').add(new Option(MODES[key].label,key)));
     SIGNATURES.forEach(sig=>$('composerSignature').add(new Option(sig,sig)));
@@ -308,7 +336,9 @@
     $('composerCloseBtn').addEventListener('click',()=>$('composerDialog').close());
     ['composerRoot','composerScale','composerSignature'].forEach(id=>$(id).addEventListener('change',updateStateFromForm));
     $('composerSectionType').addEventListener('change',updateCustomVisibility);
-    $('composerAddSection').addEventListener('click',addSection);
+    $('composerAddSection').addEventListener('click',()=>{$('composerSectionPicker').classList.toggle('hidden');if(!$('composerSectionPicker').classList.contains('hidden'))$('composerSectionType').focus();});
+    $('composerConfirmSection').addEventListener('click',()=>{const before=work.sections.length;addSection();if(work.sections.length>before)$('composerSectionPicker').classList.add('hidden');});
+    $('composerNextLine').addEventListener('click',nextLine);
     $('composerCustomSection').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addSection();}});
     const qualities=[['Major','M'],['Minor','m'],['7','7'],['m7','m7'],['Major 7','maj7'],['Add9','add9'],['Aug','aug'],['Dim','dim'],['Sus2','sus2'],['Sus4','sus4'],['6','6'],['9','9'],['13','13'],['Reset','reset']];
     const qpad=$('composerQualities');for(const [label,value] of qualities)qpad.append(buttonEl(label,'composer-utility-key',()=>applyQuality(value)));
@@ -316,7 +346,7 @@
     $('composerCustomBtn').addEventListener('click',()=>{
       const raw=$('composerCustomChord').value.trim();
       if(!isChord(raw)){notify('Enter a chord such as Bbmaj7, F#m7, C#7 or E7(b9)');return;}
-      addToken('chord',raw);$('composerCustomChord').value='';
+      addToken('chord',raw);audition(raw);$('composerCustomChord').value='';
     });
     $('composerCustomChord').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('composerCustomBtn').click();}});
     $('composerAddBar').addEventListener('click',newBar);
