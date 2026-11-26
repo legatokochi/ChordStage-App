@@ -39,7 +39,7 @@
   function isChord(raw) {
     return typeof raw==='string' && raw.length<=30 && /^[A-G](?:#{1,2}|b{1,2})?[A-Za-z0-9#b()\/+°Δø+\-]*$/.test(raw);
   }
-  function blankBar(){return {lead:'',end:'|',tokens:[]};}
+  function blankBar(){return {lead:'',end:'|',tokens:[],lineBreakBefore:false};}
   function sectionName(raw){return String(raw||'').trim().replace(/[\[\]\r\n:<>]/g,'').slice(0,60).trim()||'Untitled Section';}
   function blankSection(title='Intro'){return {title:sectionName(title),bars:[blankBar()]};}
   function normalize(input){
@@ -47,9 +47,10 @@
     let totalBars=0;
     const normalizeBars=raw=>{
       const bars=[];
-      for(const b of (Array.isArray(raw)?raw:[]).slice(0,MAX_BARS)){
+      for(const [barIndex,b] of (Array.isArray(raw)?raw:[]).slice(0,MAX_BARS).entries()){
         if(totalBars>=MAX_BARS)break;
         bars.push({
+          lineBreakBefore:b?.lineBreakBefore===undefined?(Number(input.version||0)<3&&barIndex>0):Boolean(b.lineBreakBefore),
           lead:b?.lead==='|:'?'|:':'',
           end:['|','||',':|'].includes(b?.end)?b.end:'|',
           tokens:(Array.isArray(b?.tokens)?b.tokens:[]).slice(0,MAX_TOKENS).map(t=>{
@@ -74,7 +75,7 @@
     }
     if(!sections.length)sections.push(blankSection());
     return {
-      version:2,
+      version:3,
       root:KEYS.includes(input.root)?input.root:'C',
       mode:MODES[input.mode]?input.mode:'major',
       timeSignature:SIGNATURES.includes(input.timeSignature)?input.timeSignature:'4/4',
@@ -88,10 +89,15 @@
     for(const section of c.sections){
       if(rows.length)rows.push('');
       rows.push(`${section.title}:`);
-      for(const bar of section.bars){
+      let line='';
+      for(const [i,bar] of section.bars.entries()){
         const tokens=bar.tokens.map(t=>t.type==='chord'?`[${t.value}]`:t.value).join('  ');
-        rows.push(`${bar.lead||'|'} ${tokens}${tokens?'  ':''}${bar.end}`);
+        if(i>0 && bar.lineBreakBefore){rows.push(line.trim());line='';}
+        const marker=(i===0||bar.lineBreakBefore||bar.lead)?(bar.lead||'|')+' ':'';
+        const chunk=`${marker}${tokens}${tokens?'  ':''}${bar.end}`;
+        line+=(line?'  ':'')+chunk;
       }
+      if(line.trim())rows.push(line.trim());
     }
     return rows.join('\n');
   }
