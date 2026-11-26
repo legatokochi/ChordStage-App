@@ -13,3 +13,8 @@
 .structured-chart .notation-chord{font-size:1em;font-weight:850;color:var(--accent);}
 .structured-chart .notation-symbol{font-size:.95em;font-weight:650;color:#c0cede;}
 @media(max-width:720px){.structured-chart .notation-bar{gap:.36em;margin-right:.65em}.structured-chart .notation-line{margin-bottom:12px}}
+
+/* v0.6: comfortable, even horizontal spacing on saved chord charts */
+.structured-chart .notation-bar{gap:.9em;margin-right:1.35em}
+.structured-chart .notation-line{column-gap:.15em;row-gap:.3em}
+@media(max-width:720px){.structured-chart .notation-bar{gap:.64em;margin-right:.95em}}
