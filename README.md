@@ -36,6 +36,17 @@ Existing one-section v0.2 compositions are upgraded in memory when opened and pr
 
 Run `node tests/composer.test.cjs` to test legacy conversion, section names, chart serialization and scale-chord generation.
 
+
+## ChordStage v0.4 — approved chord-composer test layout
+
+The Composer now puts **Chart Preview** and section tabs at the top, followed by matching outlined **Add Section** and **Next Line** buttons. The selected-scale chord keypad, chord variations, notation buttons, and custom-chord field follow below. **Save** spans the bottom of the composer. Tap Add Section to choose a named or custom section, then tap Create Section. The full section/bar editor stays available under **Edit bars, rename and reorder sections**.
+
+**Next Line** creates a new empty bar on a fresh displayed line within the current section; it does not start a new section or introduce untracked free text. Bars and line breaks are retained as structured composition version 3 data. Older version 2 arrangements are automatically displayed using their original one-bar-per-line format; JSON exports include these markers.
+
+**Chord Sound (Preview)** uses offline browser Web Audio synthesis. Tap any selected-scale chord or enter a supported custom chord to hear an approximate piano, electric piano, or plucked guitar-style chord while adding it. The switch, instrument and volume preferences are saved locally. This is **not a sampled guitar library**; certain unusual chord symbols will be stored but may not make a preview sound. Playback is limited to the composer, not Stage View, and mobile browser sound requires a user gesture. Preview sound defaults to On in the composer and can be switched Off.
+
+**Tests:** `node tests/composer.test.cjs`, `node tests/chord-sound.test.cjs`, and `node tests/analyzer.test.cjs`. The final touch, Android install, and audible preview require real-device testing.
+
 ## What's not included yet
 
 - **Automatic lyrics transcription**: requires a speech recognition model or service; no transcription happens in v0.1.
