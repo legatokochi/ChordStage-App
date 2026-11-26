@@ -34,7 +34,7 @@ console.log('PASS: scale chords, enharmonic spelling, custom chords, variations,
 
 // Song sections: a single-tap chord keypad fills each bar; old v1 charts remain compatible.
 assert.equal(c.normalize(input).sections[0].title,'Verse 1');
-assert.equal(c.normalize(input).version,2);
+assert.equal(c.normalize(input).version,3);
 const progression={root:'G',mode:'major',timeSignature:'4/4',sections:[
   {title:'Intro',bars:[{tokens:[{type:'chord',value:'G'},{type:'chord',value:'D'}],end:'|'}]},
   {title:'Verse 1',bars:[{tokens:[{type:'chord',value:'Em'},{type:'chord',value:'C'}],end:'||'}]},
@@ -49,3 +49,14 @@ assert.equal(c.buildChart(sections),'Intro:\n| [G]  [D]  |\n\nVerse 1:\n| [Em]  
 assert.equal(c.normalize({sections:[{title:'Verse 1:<script>',bars:[{tokens:[]}]}]}).sections[0].title,'Verse 1script');
 assert.equal(c.buildChart(input),chart);
 console.log('PASS: multiple ordered sections, custom headings, legacy migration, and Stage View chart serialization.');
+// v0.4 next-line action: bars on the same line stay together; explicit line breaks survive backups.
+const newArrangement={version:3,root:'C',sections:[{title:'Verse 2',bars:[
+ {tokens:[{type:'chord',value:'C'}],end:'|',lineBreakBefore:false},
+ {tokens:[{type:'chord',value:'G'}],end:'|',lineBreakBefore:false},
+ {tokens:[{type:'chord',value:'Am'}],end:'||',lineBreakBefore:true}
+]}]};
+assert.equal(c.buildChart(newArrangement),'Verse 2:\\n| [C]  |  [G]  |\\n| [Am]  ||'.replace(/\\n/g,'\n'));
+assert.equal(c.normalize(newArrangement).sections[0].bars[2].lineBreakBefore,true);
+const previous={version:2,root:'C',sections:[{title:'Intro',bars:[{tokens:[]},{tokens:[]}]}]};
+assert.equal(c.normalize(previous).sections[0].bars[1].lineBreakBefore,true);
+console.log('PASS: v0.4 line breaks and legacy bar formatting.');
