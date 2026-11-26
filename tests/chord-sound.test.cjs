@@ -1,0 +1,10 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');const vm=require('node:vm');const path=require('node:path');
+const sandbox={window:{}};
+vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../chord-sound.js'),'utf8'),sandbox);
+const parse=sandbox.window.ChordStageSound.parseChord;
+const eq=(s,notes)=>assert.deepEqual(Array.from(parse(s).intervals),notes);
+eq('C',[0,4,7]);eq('Am',[0,3,7]);eq('Bdim',[0,3,6]);eq('Caug',[0,4,8]);eq('Cmaj7',[0,4,7,11]);eq('Cm7',[0,3,7,10]);eq('Cadd9',[0,4,7,14]);eq('Dmadd9',[0,3,7,14]);eq('F#m7b5',[0,3,6,10]);eq('E7(b9)',[0,4,7,10,13]);eq('G13',[0,4,7,10,14,21]);
+assert.equal(parse('Bbmaj7').root,10);assert.equal(parse('C#7/G#').bass,8);assert.equal(parse('nope'),null);assert.equal(parse('Csomething'),null);
+console.log('PASS chord synthesis parsing');
