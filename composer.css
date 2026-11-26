@@ -147,3 +147,10 @@
  .composer-symbols{grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
  .composer-symbol-key{min-width:0;padding:4px 0;font-size:14px}
 }
+
+/* v0.6: add one compact optional arpeggio switch without changing composer layout */
+.composer-arpeggio-switch{display:flex;align-items:center;justify-content:flex-start;gap:14px;width:max-content;max-width:100%;font-size:12px;font-weight:750;color:var(--text);margin:7px 0 10px;padding:7px 11px;background:#141e27;border:1px solid #46556a;border-radius:9px;cursor:pointer}
+.composer-arpeggio-switch small{display:block;font-size:10px;font-weight:400;color:#b6c1cf;margin-top:2px}
+.composer-arpeggio-switch input{accent-color:var(--accent);width:19px;height:19px;flex-shrink:0}
+.composer-scale-chords{column-gap:11px}
+@media(max-width:680px){.composer-scale-chords{column-gap:7px}}
