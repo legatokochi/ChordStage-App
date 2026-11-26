@@ -76,7 +76,17 @@
     document.addEventListener('visibilitychange',()=>{if(document.hidden&&scrollRunning){stopScroll();toast('Auto-scroll paused while the app was in the background');}});
   }
   function updateNetwork(){$('connectionDot').classList.toggle('offline',!navigator.onLine);$('connectionText').textContent=navigator.onLine?'LOCAL FIRST':'OFFLINE READY';}
-  async function main(){try{db=await openDB();if(window.ChordStageComposer)window.ChordStageComposer.init({uid,saveSong,toast,openTextEditor:()=>{if(confirm('Editing as text removes the structured bar editor for this arrangement. Continue?'))openEditor(false);else openComposerFor(selected);},onSaved:async(song)=>{offset=0;localStorage.setItem('cs-selected',song.id);renderSong();await loadAudio();}});connectEvents();songs=await read('songs');if(!songs.length)await seedLibrary();const remembered=localStorage.getItem('cs-selected');selected=songs.find(s=>s.id===remembered)||songs[0]||null;$('fontLabel').textContent=fontSize;$('chartPaper').style.setProperty('--chart-font',fontSize+'px');$('bpmMode').checked=localStorage.getItem('cs-bpmMode')==='1';$('scrollSpeed').value=localStorage.getItem('cs-scrollSpeed')||30;updateScrollSetting();updateNetwork();renderLibrary();renderSong();setTab('chart');await loadAudio();if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});}catch(e){console.error(e);document.body.textContent='ChordStage could not open its local database. Check browser storage settings and reload. '+e.message;}}
+  async function main(){try{db=await openDB();if(window.ChordStageComposer)window.ChordStageComposer.init({uid,saveSong,toast,openTextEditor:()=>{if(confirm('Editing as text removes the structured bar editor for this arrangement. Continue?'))openEditor(false);else openComposerFor(selected);},onSaved:async(song)=>{offset=0;localStorage.setItem('cs-selected',song.id);renderSong();await loadAudio();}});connectEvents();songs=await read('songs');if(!songs.length)await seedLibrary();const remembered=localStorage.getItem('cs-selected');selected=songs.find(s=>s.id===remembered)||songs[0]||null;$('fontLabel').textContent=fontSize;$('chartPaper').style.setProperty('--chart-font',fontSize+'px');$('bpmMode').checked=localStorage.getItem('cs-bpmMode')==='1';$('scrollSpeed').value=localStorage.getItem('cs-scrollSpeed')||30;updateScrollSetting();updateNetwork();renderLibrary();renderSong();setTab('chart');await loadAudio();if('serviceWorker' in navigator&&location.protocol.startsWith('http')){
+      navigator.serviceWorker.addEventListener('controllerchange',()=>{
+        if(!sessionStorage.getItem('cs-v7-reloaded')){
+          sessionStorage.setItem('cs-v7-reloaded','1');
+          location.reload();
+        }
+      });
+      navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
+        reg.update().catch(()=>{});
+      }).catch(()=>{});
+    }}catch(e){console.error(e);document.body.textContent='ChordStage could not open its local database. Check browser storage settings and reload. '+e.message;}}
   main();
   // Small pure functions exposed for automated verification.
   window.ChordStageMath={transposeRoot,transposeChord,formatDuration,normOffset};
