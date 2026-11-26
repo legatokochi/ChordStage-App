@@ -46,9 +46,10 @@
       const midiRoot=base+((parsed.root-(base%12)+12)%12);
       const midi=parsed.intervals.map(n=>midiRoot+n);
       if(parsed.bass!==null){let bassMidi=48+((parsed.bass-0+12)%12);if(bassMidi>=midi[0])bassMidi-=12;midi.unshift(bassMidi);}
-      const length=instrument==='pad'?1.25:instrument==='guitar'?.95:1.15;
+      const arpeggio=opts.arpeggio===true;
+      const length=arpeggio?.9:(instrument==='pad'?1.25:instrument==='guitar'?.95:1.15);
       midi.slice(0,7).forEach((note,i)=>{
-        const start=t+(instrument==='guitar'?i*.035:i*.007);
+        const start=t+(arpeggio?i*.23:(instrument==='guitar'?i*.035:i*.007));
         const voice=ctx.createGain();voice.connect(gain);voice.gain.setValueAtTime(.0001,start);
         voice.gain.exponentialRampToValueAtTime(instrument==='pad'?.13:.23,start+(instrument==='pad'?.13:.018));
         voice.gain.exponentialRampToValueAtTime(.0001,start+length);
