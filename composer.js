@@ -18,7 +18,7 @@
   const SECTION_PRESETS = ['Intro','Verse 1','Verse 2','Verse 3','Verse 4','Pre-Chorus','Chorus','Post-Chorus','Bridge','Instrumental','Solo','Interlude','Breakdown','Outro','Ending'];
   const MAX_TOKENS = 24;
   const $ = id => document.getElementById(id);
-  let api=null, work=null, editing=null, activeSection=0, activeBar=0, activeToken=-1, busy=false;
+  let api=null, work=null, editing=null, activeSection=0, activeBar=0, activeToken=-1, busy=false, previewChord=null;
 
   const mod12 = n => ((n%12)+12)%12;
   function chordInScale(root,mode='major') {
@@ -114,12 +114,25 @@
     return suffix===undefined?chord:root+suffix;
   }
   function notify(message){if(api?.toast)api.toast(message);}
+  // When Preview is on, audition a chord without changing the saved chart.
+  // When Preview is off, keypad taps insert chords without making sound.
+  function chordTapAction(previewOn){return previewOn?'preview':'insert';}
+  function previewEnabled(){return $('composerSoundOn').checked;}
   function audition(chord,button){
-    if(!$('composerSoundOn').checked || !window.ChordStageSound)return;
-    const opts={instrument:$('composerInstrument').value,volume:Number($('composerVolume').value)/100};
+    if(!window.ChordStageSound){notify('Sound preview is unavailable on this device');return;}
+    const opts={instrument:$('composerInstrument').value,volume:Number($('composerVolume').value)/100,arpeggio:$('composerArpeggio').checked};
     const result=window.ChordStageSound.play(chord,opts);
-    if(button){button.classList.add('playing');setTimeout(()=>button.classList.remove('playing'),270);}
-    Promise.resolve(result).then(ok=>{if(ok===false)notify('This chord sound is not supported by the synthesizer. The chord was still added.');}).catch(()=>{});
+    if(button){button.classList.add('playing');setTimeout(()=>button.classList.remove('playing'),380);}
+    Promise.resolve(result).then(ok=>{if(ok===false)notify('Sound preview is unavailable for this chord. Nothing was added.');}).catch(()=>notify('Could not preview this chord'));
+  }
+  function tapChord(chord,button){
+    if(chordTapAction(previewEnabled())==='preview'){
+      previewChord=chord;
+      audition(chord,button);
+      $('composerSelection').textContent=`Previewing ${chord} · no chord added`;
+    }else{
+      addToken('chord',chord);
+    }
   }
   function currentSection(){return work?.sections[activeSection];}
   function currentBar(){return currentSection()?.bars[activeBar];}
@@ -127,7 +140,7 @@
   function initializeState(song){
     editing=song||null;
     work=normalize(song?.composition)||normalize({root:song?.key||'C',section:'Intro',timeSignature:song?.timeSignature||'4/4',mode:'major'});
-    activeSection=0;activeBar=0;activeToken=-1;
+    activeSection=0;activeBar=0;activeToken=-1;previewChord=null;
     $('composerHeading').textContent=song?'Edit chord arrangement':'Chord Composer';
     $('composerTitle').value=song?.title||'';
     $('composerArtist').value=song?.artist||'';
@@ -151,6 +164,7 @@
     work.root=$('composerRoot').value;
     work.mode=$('composerScale').value;
     work.timeSignature=$('composerSignature').value;
+    previewChord=null;
     render();
   }
   function updateCustomVisibility(){
@@ -163,10 +177,10 @@
       const button=document.createElement('button');button.type='button';button.className='composer-chord-key';
       const name=document.createElement('strong');name.textContent=chord;
       const sub=document.createElement('span');sub.textContent=degree;
-      button.append(name,sub);button.setAttribute('aria-label',`Insert ${chord}, scale degree ${degree}`);
-      button.addEventListener('click',()=>{addToken('chord',chord);audition(chord,button);});pad.append(button);
+      button.append(name,sub);button.setAttribute('aria-label',`${previewEnabled()?'Preview':'Insert'} ${chord}, scale degree ${degree}`);
+      button.addEventListener('click',()=>tapChord(chord,button));pad.append(button);
     }
-    $('composerScaleHint').textContent=`${work.root} ${MODES[work.mode].label} · tap to insert and preview`; $('composerScaleBadge').textContent=`${work.root} ${MODES[work.mode].label}`;
+    $('composerScaleHint').textContent=`${work.root} ${MODES[work.mode].label} · ${previewEnabled()?'Preview only: tap to listen, no chord is inserted':'Entry mode: tap a chord to insert it into the selected bar'}`; $('composerScaleBadge').textContent=`${work.root} ${MODES[work.mode].label}`;
   }
   function buttonEl(label,cls,onClick){const b=document.createElement('button');b.type='button';b.className=cls;b.textContent=label;b.addEventListener('click',onClick);return b;}
   function renderSections(){
@@ -291,11 +305,23 @@
   }
   function removeToken(){const bar=currentBar();if(!bar||activeToken<0||activeToken>=bar.tokens.length){notify('Select a chord or symbol first');return;}bar.tokens.splice(activeToken,1);activeToken=-1;renderSections();}
   function applyQuality(quality){
+    if(previewEnabled()){
+      // In preview-only mode, variations never alter a saved chart.
+      const selectedToken=currentBar()?.tokens[activeToken];
+      const base=previewChord||(selectedToken?.type==='chord'?selectedToken.value:null);
+      if(!base){notify('Tap a chord key first to preview its variations');return;}
+      const changed=changeQuality(base,quality);
+      if(!isChord(changed)){notify('This variation is not supported');return;}
+      previewChord=changed;
+      audition(changed);
+      $('composerSelection').textContent=`Previewing ${changed} · no changes to the chart`;
+      return;
+    }
     const t=currentBar()?.tokens[activeToken];
     if(!t||t.type!=='chord'){notify('Tap an inserted chord in the bar before choosing a variation');return;}
     const changed=changeQuality(t.value,quality);
     if(!isChord(changed)){notify('This variation is not supported');return;}
-    t.value=changed;$('composerSelection').textContent=`Changed chord to ${t.value}`;renderSections();audition(t.value);
+    t.value=changed;$('composerSelection').textContent=`Changed chord to ${t.value}`;renderSections();
   }
   function symbolAction(s){
     const bar=currentBar();if(!bar)return;
@@ -321,10 +347,12 @@
   }
   function init(config){
     api=config;
-    $('composerSoundOn').checked=localStorage.getItem('cs-sound-preview')!=='off';
+    $('composerSoundOn').checked=localStorage.getItem('cs-preview-only')==='on';
+    $('composerArpeggio').checked=localStorage.getItem('cs-preview-arpeggio')==='on';
     $('composerInstrument').value=localStorage.getItem('cs-preview-instrument')||'guitar';
     $('composerVolume').value=localStorage.getItem('cs-preview-volume')||40;
-    $('composerSoundOn').addEventListener('change',()=>{localStorage.setItem('cs-sound-preview',$('composerSoundOn').checked?'on':'off');if(!$('composerSoundOn').checked)window.ChordStageSound?.stop();});
+    $('composerSoundOn').addEventListener('change',()=>{localStorage.setItem('cs-preview-only',$('composerSoundOn').checked?'on':'off');previewChord=null;window.ChordStageSound?.stop();renderKeypad();$('composerSelection').textContent=$('composerSoundOn').checked?'Preview-only mode · tapping chords will not add them':'Entry mode · tapping chords will add them';});
+    $('composerArpeggio').addEventListener('change',()=>{localStorage.setItem('cs-preview-arpeggio',$('composerArpeggio').checked?'on':'off');window.ChordStageSound?.stop();});
     $('composerInstrument').addEventListener('change',()=>localStorage.setItem('cs-preview-instrument',$('composerInstrument').value));
     $('composerVolume').addEventListener('input',()=>localStorage.setItem('cs-preview-volume',$('composerVolume').value));
     $('composerDialog').addEventListener('close',()=>window.ChordStageSound?.stop());
@@ -346,12 +374,12 @@
     $('composerCustomBtn').addEventListener('click',()=>{
       const raw=$('composerCustomChord').value.trim();
       if(!isChord(raw)){notify('Enter a chord such as Bbmaj7, F#m7, C#7 or E7(b9)');return;}
-      addToken('chord',raw);audition(raw);$('composerCustomChord').value='';
+      tapChord(raw);if(!previewEnabled())$('composerCustomChord').value='';
     });
     $('composerCustomChord').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('composerCustomBtn').click();}});
     $('composerAddBar').addEventListener('click',newBar);
     $('composerRemoveToken').addEventListener('click',removeToken);
     $('composerManualBtn').addEventListener('click',()=>{if(!editing)return;$('composerDialog').close();api.openTextEditor();});
   }
-  window.ChordStageComposer={init,open,normalize,buildChart,chordInScale,changeQuality,isChord};
+  window.ChordStageComposer={init,open,normalize,buildChart,chordInScale,changeQuality,isChord,chordTapAction};
 })();
