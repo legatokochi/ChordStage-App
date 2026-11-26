@@ -101,7 +101,7 @@
         <div><span class="eyebrow">YOUR CHORDS · YOUR ARRANGEMENT</span><h2 id="composerHeading">Chord Composer</h2></div>
         <button type="button" id="composerCloseBtn" class="icon-button" aria-label="Close Chord Composer">×</button>
       </div>
-      <p class="composer-lead">Build your chart section by section. Tap a chord to insert it and optionally hear its sound.</p>
+      <p class="composer-lead">Build your chart section by section. Turn on Chord Sound to audition without entering, or turn it off to insert chords.</p>
       <div class="composer-details">
         <label class="composer-song-title">Song name<input id="composerTitle" type="text" maxlength="140" placeholder="Name your song" required></label>
         <label class="composer-artist">Artist (optional)<input id="composerArtist" type="text" maxlength="140" placeholder="Artist or band"></label>
@@ -155,7 +155,7 @@
             <h3>♫ Selected Scale Chords</h3><span id="composerScaleBadge" class="composer-scale-badge">C Major</span>
           </div>
           <div class="composer-audio-controls" aria-label="Optional chord sound preview">
-            <label class="composer-sound-switch" for="composerSoundOn"><span>♬ Chord Sound <small>Preview</small></span><input id="composerSoundOn" type="checkbox" checked aria-label="Play chord sound on each tap"></label>
+            <label class="composer-sound-switch" for="composerSoundOn"><span>♬ Chord Sound <small>Preview only · no insertion</small></span><input id="composerSoundOn" type="checkbox" aria-label="Preview chords without entering them"></label>
             <label class="composer-instrument-label">Instrument
               <select id="composerInstrument" aria-label="Preview instrument">
                 <option value="guitar">Acoustic Guitar*</option>
@@ -167,6 +167,7 @@
               <input id="composerVolume" type="range" min="0" max="80" value="40" step="5" aria-label="Chord preview volume">
             </label>
           </div>
+          <label class="composer-arpeggio-switch" for="composerArpeggio"><span>♪ Arpeggio Mode <small>Play notes one by one when previewing</small></span><input id="composerArpeggio" type="checkbox" aria-label="Arpeggio mode: play chord notes separately"></label>
           <p id="composerScaleHint" class="composer-hint"></p>
           <div id="composerScaleChords" class="composer-scale-chords"></div>
           <span class="composer-pad-label">CHORD VARIATIONS · SELECT AN INSERTED CHORD TO APPLY</span>
@@ -178,7 +179,7 @@
             <input id="composerCustomChord" type="text" maxlength="30" aria-label="Custom chord name" placeholder="e.g. Bbmaj7, F#m7b5, E7(b9)" autocomplete="off" spellcheck="false">
             <button id="composerCustomBtn" type="button" class="button button-primary">＋ Add</button>
           </div>
-          <p class="composer-tip">Tap a chord to insert and preview it. | adds a bar · || ends a phrase · |: and :| mark repeats · % repeats a bar · / indicates a beat slash. *Instrument sounds are synthesized approximations.</p>
+          <p class="composer-tip">Chord Sound ON: audition only. OFF: insert chord. | adds a bar · || ends a phrase · |: and :| mark repeats · % repeats a bar · / indicates a beat slash. *Instrument sounds are synthesized approximations.</p>
         </section>
       </div>
       <div class="composer-footer composer-new-footer">
